@@ -243,4 +243,28 @@
   <data name="SearchWindowSize" xml:space="preserve">
     <value>File size</value>
   </data>
+  <data name="AddCloudWindowAdd" xml:space="preserve">
+    <value>Add Cloud</value>
+  </data>
+  <data name="AddCloudWindowCloudName" xml:space="preserve">
+    <value>Cloud Name</value>
+  </data>
+  <data name="AddCloudWindowCloudService" xml:space="preserve">
+    <value>Service</value>
+  </data>
+  <data name="AddCloudWindowTitle" xml:space="preserve">
+    <value>Add Cloud</value>
+  </data>
+  <data name="PopupUploadEncryption" xml:space="preserve">
+    <value>Encrypt</value>
+  </data>
+  <data name="PopupUploadFilePath" xml:space="preserve">
+    <value>File path</value>
+  </data>
+  <data name="PopupUploadUpload" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="PopupUploadCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
 </root>

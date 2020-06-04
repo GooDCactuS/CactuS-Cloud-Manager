@@ -243,4 +243,28 @@
   <data name="SearchWindowSize" xml:space="preserve">
     <value>Размер файла</value>
   </data>
+  <data name="AddCloudWindowAdd" xml:space="preserve">
+    <value>Добавить облако</value>
+  </data>
+  <data name="AddCloudWindowCloudName" xml:space="preserve">
+    <value>Имя облака</value>
+  </data>
+  <data name="AddCloudWindowCloudService" xml:space="preserve">
+    <value>Сервис</value>
+  </data>
+  <data name="AddCloudWindowTitle" xml:space="preserve">
+    <value>Добавить облако</value>
+  </data>
+  <data name="PopupUploadEncryption" xml:space="preserve">
+    <value>Зашифровать</value>
+  </data>
+  <data name="PopupUploadFilePath" xml:space="preserve">
+    <value>Путь до файла</value>
+  </data>
+  <data name="PopupUploadUpload" xml:space="preserve">
+    <value>Загрузить</value>
+  </data>
+  <data name="PopupUploadCancel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
 </root>
