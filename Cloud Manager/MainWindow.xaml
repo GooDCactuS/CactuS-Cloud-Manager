@@ -117,6 +117,18 @@
                     </StackPanel>
                 </Border>
             </Popup>
+
+            <Popup Grid.Row="0" x:Name="PopupUploadConfirmation" StaysOpen="True" Width="250" Placement="Center" MaxWidth="250" PopupAnimation="Scroll" IsOpen="False">
+                <Border Style="{StaticResource PopupBorderStyle}">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="{x:Static res:Resources.PopupUploadFilePath}" Margin="5"></TextBlock>
+                        <TextBox IsEnabled="False" Margin="5" x:Name="UploadFilePath"></TextBox>
+                        <CheckBox Content="{x:Static res:Resources.PopupUploadEncryption}" Margin="5" x:Name="IsEncrypted"></CheckBox>
+                        <Button Content="{x:Static res:Resources.PopupUploadUpload}" Margin="5" Click="uploadConfirmation_Click"></Button>
+                        <Button Content="{x:Static res:Resources.PopupUploadCancel}" Margin="5" Click="uploadCancel_Click"></Button>
+                    </StackPanel>
+                </Border>
+            </Popup>
         </Grid>
 
     </StackPanel>

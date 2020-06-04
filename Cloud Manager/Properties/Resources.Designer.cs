@@ -70,6 +70,42 @@ namespace Cloud_Manager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add Cloud.
+        /// </summary>
+        public static string AddCloudWindowAdd {
+            get {
+                return ResourceManager.GetString("AddCloudWindowAdd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cloud Name.
+        /// </summary>
+        public static string AddCloudWindowCloudName {
+            get {
+                return ResourceManager.GetString("AddCloudWindowCloudName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service.
+        /// </summary>
+        public static string AddCloudWindowCloudService {
+            get {
+                return ResourceManager.GetString("AddCloudWindowCloudService", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Cloud.
+        /// </summary>
+        public static string AddCloudWindowTitle {
+            get {
+                return ResourceManager.GetString("AddCloudWindowTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Back.
         /// </summary>
         public static string BackButton {
@@ -228,6 +264,42 @@ namespace Cloud_Manager.Properties {
         public static string PasteButton {
             get {
                 return ResourceManager.GetString("PasteButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string PopupUploadCancel {
+            get {
+                return ResourceManager.GetString("PopupUploadCancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Encrypt.
+        /// </summary>
+        public static string PopupUploadEncryption {
+            get {
+                return ResourceManager.GetString("PopupUploadEncryption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File path.
+        /// </summary>
+        public static string PopupUploadFilePath {
+            get {
+                return ResourceManager.GetString("PopupUploadFilePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upload.
+        /// </summary>
+        public static string PopupUploadUpload {
+            get {
+                return ResourceManager.GetString("PopupUploadUpload", resourceCulture);
             }
         }
         
