@@ -316,21 +316,17 @@ namespace Cloud_Manager
         /// <summary>
         /// Downloads the first file of list that contains selected files.
         /// </summary>
-        public void DownloadFile()
+        public void DownloadFile(string fullPath, string id)
         {
-            var selectedItem = SelectedItems.First();
-            if (selectedItem != null)
-            {
-                _currentCloudInfo.Cloud.DownloadFile(selectedItem.Name, selectedItem.Id);
-            }
+            _currentCloudInfo.Cloud.DownloadFile(fullPath, id);
         }
 
         /// <summary>
         /// Uploads a file into the current directory.
         /// </summary>
-        public void UploadFile()
+        public void UploadFile(string filePath)
         {
-            _currentCloudInfo.Cloud.UploadFile(_currentCloudInfo.CurrentDir);
+            _currentCloudInfo.Cloud.UploadFile(_currentCloudInfo.CurrentDir, filePath);
         }
 
         /// <summary>

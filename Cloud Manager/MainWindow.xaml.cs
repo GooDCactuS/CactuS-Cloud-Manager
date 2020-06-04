@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Cloud_Manager.Managers;
 using Cloud_Manager.Properties;
+using Microsoft.Win32;
 
 namespace Cloud_Manager
 {
@@ -26,7 +27,7 @@ namespace Cloud_Manager
 
         public bool IsSelected => _cloudManagerLogic.SelectedItems.Count > 0 && _cloudManagerLogic.CurrentPath != "/";
 
-        public bool IsSelectedInTrash => _cloudManagerLogic.SelectedItems.Count > 0 &&  _cloudManagerLogic.CurrentPath.Substring(_cloudManagerLogic.CurrentPath.LastIndexOf('/')) == "/Trash";
+        public bool IsSelectedInTrash => _cloudManagerLogic.SelectedItems.Count > 0 && _cloudManagerLogic.CurrentPath.Substring(_cloudManagerLogic.CurrentPath.LastIndexOf('/')) == "/Trash";
 
         public bool IsDownloadAvailable
         {
@@ -42,7 +43,7 @@ namespace Cloud_Manager
             {
                 if (_cloudManagerLogic.CurrentPath != "/")
                 {
-                    value.Insert(0, new FileStructure {Name = ".."});
+                    value.Insert(0, new FileStructure { Name = ".." });
                 }
                 _folderItems = value;
                 OnPropertyChanged("FolderItems");
@@ -101,13 +102,36 @@ namespace Cloud_Manager
 
         private void download_Click(object sender, RoutedEventArgs e)
         {
-            _cloudManagerLogic.DownloadFile();
+            var selectedItem = _cloudManagerLogic.SelectedItems.First();
+            if (selectedItem != null)
+            {
+                var saveDialog = new SaveFileDialog
+                {
+                    FileName = selectedItem.Name,
+                    Filter = "All files (*.*)|*.*"
+                };
+                if (saveDialog.ShowDialog() != true) { return; }
+
+                _cloudManagerLogic.DownloadFile(saveDialog.FileName, selectedItem.Id);
+            }
+
             NotifyMenuItems();
         }
 
         private void upload_Click(object sender, RoutedEventArgs e)
         {
-            _cloudManagerLogic.UploadFile();
+
+            var openFileDialog = new OpenFileDialog { Filter = "All files (*.*)|*.*", FileName = "" };
+            if (openFileDialog.ShowDialog() == true)
+            {
+                if (openFileDialog.FileName != "")
+                {
+                    _cloudManagerLogic.UploadFile(openFileDialog.FileName);
+                }
+            }
+
+
+
             FolderItems = _cloudManagerLogic.RefreshInfo();
             NotifyMenuItems();
         }
@@ -161,9 +185,9 @@ namespace Cloud_Manager
 
         private void clearTrash_Click(object sender, RoutedEventArgs e)
         {
-           _cloudManagerLogic.ClearTrash();
-           FolderItems = _cloudManagerLogic.RefreshInfo();
-           NotifyMenuItems();
+            _cloudManagerLogic.ClearTrash();
+            FolderItems = _cloudManagerLogic.RefreshInfo();
+            NotifyMenuItems();
         }
 
         private void rename_Click(object sender, RoutedEventArgs e)
@@ -277,7 +301,7 @@ namespace Cloud_Manager
             Settings.Default.Save();
         }
 
-        
+
 
         private void addCloud_Click(object sender, RoutedEventArgs e)
         {

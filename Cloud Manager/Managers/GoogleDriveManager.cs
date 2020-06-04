@@ -51,10 +51,10 @@ namespace Cloud_Manager.Managers
                     GoogleClientSecrets.Load(stream).Secrets,
                     Scopes,
                     "user",
-                    CancellationToken.None, 
+                    CancellationToken.None,
                     new FileDataStore(_pathName, true)).Result;
             }
-            
+
 
             return _credential;
         }
@@ -78,88 +78,83 @@ namespace Cloud_Manager.Managers
         /// <summary>
         /// Downloads a file.
         /// </summary>
-        /// <param name="name">The name of the file that file have on the computer</param>
+        /// <param name="fullPath">The full path of the file that file have on the computer</param>
         /// <param name="id">ID of the file</param>
-        public override void DownloadFile(string name, string id)
+        public override void DownloadFile(string fullPath, string id)
         {
-            var saveDialog = new SaveFileDialog
-            {
-                FileName = name,
-                Filter = "All files (*.*)|*.*"
-            };
-            if (saveDialog.ShowDialog() == true)
-            {
-                string downloadFileName = saveDialog.FileName;
-                var request = Service.Files.Get(id);
-                var stream = new MemoryStream();
+            var request = Service.Files.Get(id);
+            var stream = new MemoryStream();
 
-                request.MediaDownloader.ProgressChanged +=
-                    progress =>
+            request.MediaDownloader.ProgressChanged +=
+                progress =>
+                {
+                    switch (progress.Status)
                     {
-                        switch (progress.Status)
-                        {
-                            case DownloadStatus.Downloading:
-                                {
-                                    break;
-                                }
-                            case DownloadStatus.Completed:
-                                {
-                                    using (FileStream file = new FileStream(downloadFileName, FileMode.Create, FileAccess.Write))
-                                    {
-                                        stream.WriteTo(file);
-                                    }
-                                    break;
-                                }
-                            case DownloadStatus.Failed:
-                                {
-                                    MessageBox.Show("Ошибка при загрузке файла", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                                    break;
-                                }
-                            default:
-                                MessageBox.Show("Unexpected program behaviour");
+                        case DownloadStatus.Downloading:
+                            {
                                 break;
-                        }
-                    };
-                request.DownloadAsync(stream);
-            }
+                            }
+                        case DownloadStatus.Completed:
+                            {
+                                using (FileStream file = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                                {
+                                    stream.WriteTo(file);
+                                }
+                                break;
+                            }
+                        case DownloadStatus.Failed:
+                            {
+                                MessageBox.Show("Ошибка при загрузке файла", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                                break;
+                            }
+                        default:
+                            MessageBox.Show("Unexpected program behaviour");
+                            break;
+                    }
+                };
+            request.DownloadAsync(stream);
+
         }
 
         /// <summary>
         /// Uploads the file.
         /// </summary>
         /// <param name="curDir">The current cloud directory where the file will be uploaded</param>
-        public override void UploadFile(FileStructure curDir)
+        /// <param name="filePath">A path to the file</param>
+        public override void UploadFile(FileStructure curDir, string filePath)
         {
-            var openFileDialog = new OpenFileDialog {Filter = "All files (*.*)|*.*", FileName = ""};
-            if (openFileDialog.ShowDialog() == true)
+            string mimeType = "application/unknown";
+            string ext = Path.GetExtension(filePath).ToLower(CultureInfo.InvariantCulture);
+            RegistryKey regKey = Registry.ClassesRoot.OpenSubKey(ext);
+            if (regKey?.GetValue("Content Type") != null)
             {
-                string mimeType = "application/unknown";
-                string ext = Path.GetExtension(openFileDialog.FileName).ToLower(CultureInfo.InvariantCulture);
-                RegistryKey regKey = Registry.ClassesRoot.OpenSubKey(ext);
-                if (regKey != null && regKey.GetValue("Content Type") != null)
-                {
-                    mimeType = regKey.GetValue("Content Type").ToString();
-                }
-                string shortFileName = openFileDialog.FileName;
-                shortFileName = shortFileName.Substring(shortFileName.LastIndexOf('\\', shortFileName.Length - 2) + 1);
-                var file = new Google.Apis.Drive.v3.Data.File
-                {
-                    Name = shortFileName,
-                    Parents = FolderItems[0].Parents,
-
-                };
-
-                FilesResource.CreateMediaUpload request;
-                using (var stream = new FileStream(openFileDialog.FileName,
-                        FileMode.Open))
-                {
-                    request = Service.Files.Create(
-                        file, stream, mimeType);
-                    request.Fields = "id";
-                    request.Upload();
-                }
-
+                mimeType = regKey.GetValue("Content Type").ToString();
             }
+
+            string shortFileName = filePath;
+            shortFileName = shortFileName.Substring(shortFileName.LastIndexOf('\\', shortFileName.Length - 2) + 1);
+            if (curDir.Name == "Root")
+            {
+                curDir.Id = Root;
+            }
+            var file = new Google.Apis.Drive.v3.Data.File
+            {
+                Name = shortFileName,
+                Parents = new List<string> { curDir.Id }
+
+            };
+
+            FilesResource.CreateMediaUpload request;
+            using (var stream = new FileStream(filePath,
+                    FileMode.Open))
+            {
+                request = Service.Files.Create(
+                    file, stream, mimeType);
+                request.Fields = "id";
+                request.Upload();
+            }
+
+
         }
 
         /// <summary>
@@ -219,7 +214,7 @@ namespace Cloud_Manager.Managers
         {
             foreach (var item in selectedFiles)
             {
-                Google.Apis.Drive.v3.Data.File file = new Google.Apis.Drive.v3.Data.File {Trashed = true};
+                Google.Apis.Drive.v3.Data.File file = new Google.Apis.Drive.v3.Data.File { Trashed = true };
                 Service.Files.Update(file, item.Id).Execute();
             }
         }
@@ -232,7 +227,7 @@ namespace Cloud_Manager.Managers
         {
             foreach (var item in selectedFiles)
             {
-                Google.Apis.Drive.v3.Data.File file = new Google.Apis.Drive.v3.Data.File {Trashed = false};
+                Google.Apis.Drive.v3.Data.File file = new Google.Apis.Drive.v3.Data.File { Trashed = false };
                 Service.Files.Update(file, item.Id).Execute();
             }
         }
@@ -264,8 +259,8 @@ namespace Cloud_Manager.Managers
             listRequest.PageSize = 1000;
             listRequest.Fields = "nextPageToken, files(id, name, fileExtension, size, modifiedByMeTime, parents, trashed, ownedByMe, shared)";
             listRequest.PageToken = null;
-            
-            
+
+
             var request = listRequest.Execute();
             var files = request.Files;
 

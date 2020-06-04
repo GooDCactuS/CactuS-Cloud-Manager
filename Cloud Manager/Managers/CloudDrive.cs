@@ -11,8 +11,8 @@ namespace Cloud_Manager.Managers
 
     public abstract class CloudDrive
     {
-        public abstract void DownloadFile(string name, string id);
-        public abstract void UploadFile(FileStructure curDir);
+        public abstract void DownloadFile(string fullPath, string id);
+        public abstract void UploadFile(FileStructure curDir, string filePath);
         public abstract void PasteFiles(ICollection<FileStructure> cutFiles, FileStructure curDir);
         public abstract void CreateFolder(string name, FileStructure parentDir);
         public abstract void RemoveFile(ICollection<FileStructure> selectedFiles);

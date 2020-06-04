@@ -13,7 +13,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Cloud_Manager.Managers
 {
-    class DropboxManager : CloudDrive
+    public class DropboxManager : CloudDrive
     {
         #region Variables
         private DropboxClient _dbx;
@@ -43,7 +43,7 @@ namespace Cloud_Manager.Managers
                 task.Wait();
                 SaveCredentials(task.Result);
                 _dbx = new DropboxClient(task.Result);
-                
+
             }
         }
         #endregion
@@ -59,7 +59,7 @@ namespace Cloud_Manager.Managers
         /// <param name="token">User token</param>
         private void SaveCredentials(string token)
         {
-            using (var stream = new FileStream(_pathName, FileMode.Create)) 
+            using (var stream = new FileStream(_pathName, FileMode.Create))
             {
                 string cred = "{\"token\" : \"" + token + "\"}";
 
@@ -100,7 +100,7 @@ namespace Cloud_Manager.Managers
                 _redirectUri = new Uri(_loopbackHost + json.redirect_uri);
                 _jsRedirectUri = new Uri(_loopbackHost + json.js_redirect_uri);
             }
-            
+
         }
 
         /// <summary>
@@ -203,20 +203,12 @@ namespace Cloud_Manager.Managers
         /// <summary>
         /// Downloads a files which id equals parameter id.
         /// </summary>
-        /// <param name="name">The name of the file</param>
-        /// <param name="id">The id of the file</param>
+        /// <param name="fullPath">The place where the selected file will be saved</param>
+        /// <param name="id">The id of the selected file</param>
         /// <returns></returns>
-        public override void DownloadFile(string name, string id)
+        public override void DownloadFile(string fullPath, string id)
         {
-            var saveDialog = new SaveFileDialog
-            {
-                FileName = name,
-                Filter = "All files (*.*)|*.*"
-            };
-            if (saveDialog.ShowDialog() != true) { return;}
-
-            var downloadFileName = saveDialog.FileName;
-            var task = Task.Run(() => Download(downloadFileName, id, _dbx));
+            var task = Task.Run(() => Download(fullPath, id, _dbx));
             task.Wait();
         }
 
@@ -235,18 +227,15 @@ namespace Cloud_Manager.Managers
         /// Uploads a file into specified directory.
         /// </summary>
         /// <param name="curDir">A directory, where the file will be uploaded</param>
+        /// <param name="filePath">A path to the file</param>
         /// <returns></returns>
-        public override void UploadFile(FileStructure curDir)
+        public override void UploadFile(FileStructure curDir, string filePath)
         {
-            var openFileDialog = new OpenFileDialog {Filter = "All files (*.*)|*.*", FileName = ""};
-            if (openFileDialog.ShowDialog() == true)
-            {
-                string fileName = openFileDialog.FileName;
-                fileName = fileName.Substring(fileName.LastIndexOf('\\', fileName.Length - 2) + 1);
-                fileName = curDir.Path + '/' + fileName;
-                var task = Task.Run(() => Upload(fileName, openFileDialog.FileName, _dbx));
-                task.Wait();
-            }
+            string fileName = filePath.Substring(filePath.LastIndexOf('\\', filePath.Length - 2) + 1);
+            fileName = curDir.Path + '/' + fileName;
+            var task = Task.Run(() => Upload(fileName, filePath, _dbx));
+            task.Wait();
+
         }
 
         /// <summary>
@@ -374,7 +363,7 @@ namespace Cloud_Manager.Managers
             var task = Task.Run(() => GetFolderFiles());
             task.Wait();
             var files = task.Result;
-            
+
             return FileStructure.Convert(files);
         }
 
