@@ -157,6 +157,7 @@
     </Compile>
     <Compile Include="Data\ApplicationContext.cs" />
     <Compile Include="Data\Cloud.cs" />
+    <Compile Include="Encryptor.cs" />
     <Compile Include="SearchWindow.xaml.cs">
       <DependentUpon>SearchWindow.xaml</DependentUpon>
     </Compile>
