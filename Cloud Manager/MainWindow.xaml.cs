@@ -1,10 +1,13 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using Cloud_Manager.Managers;
 using Cloud_Manager.Properties;
 using Microsoft.Win32;
 
@@ -105,14 +108,25 @@ namespace Cloud_Manager
             var selectedItem = _cloudManagerLogic.SelectedItems.First();
             if (selectedItem != null)
             {
+                bool isEncrypted = false;
+                string fileName;
+                if (selectedItem.Name.Substring(selectedItem.Name.LastIndexOf('.') + 1) == "enc")
+                {
+                    isEncrypted = true;
+                    fileName = selectedItem.Name.Substring(0, selectedItem.Name.LastIndexOf('.'));
+                }
+                else
+                {
+                    fileName = selectedItem.Name;
+                }
                 var saveDialog = new SaveFileDialog
                 {
-                    FileName = selectedItem.Name,
+                    FileName = fileName,
                     Filter = "All files (*.*)|*.*"
                 };
                 if (saveDialog.ShowDialog() != true) { return; }
 
-                _cloudManagerLogic.DownloadFile(saveDialog.FileName, selectedItem.Id);
+                _cloudManagerLogic.DownloadFile(saveDialog.FileName, selectedItem.Id, isEncrypted);
             }
 
             NotifyMenuItems();
@@ -120,20 +134,16 @@ namespace Cloud_Manager
 
         private void upload_Click(object sender, RoutedEventArgs e)
         {
-
             var openFileDialog = new OpenFileDialog { Filter = "All files (*.*)|*.*", FileName = "" };
             if (openFileDialog.ShowDialog() == true)
             {
                 if (openFileDialog.FileName != "")
                 {
-                    _cloudManagerLogic.UploadFile(openFileDialog.FileName);
+                    UploadFilePath.Text = openFileDialog.FileName;
+                    PopupUploadConfirmation.IsOpen = true;
                 }
             }
 
-
-
-            FolderItems = _cloudManagerLogic.RefreshInfo();
-            NotifyMenuItems();
         }
 
         private void cut_Click(object sender, RoutedEventArgs e)
@@ -284,7 +294,15 @@ namespace Cloud_Manager
             }
             else
             {
-                System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo(Settings.Default.Language);
+                Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(Settings.Default.Language);
+            }
+
+            if (Settings.Default.Key == "" || Settings.Default.IV == "")
+            {
+                Aes aes = Aes.Create();
+                Settings.Default.Key = Convert.ToBase64String(aes.Key);
+                Settings.Default.IV = Convert.ToBase64String(aes.IV);
+                Settings.Default.Save();
             }
         }
 
@@ -292,7 +310,7 @@ namespace Cloud_Manager
         {
             if (language == null)
             {
-                Settings.Default.Language = System.Threading.Thread.CurrentThread.CurrentUICulture.ToString();
+                Settings.Default.Language = Thread.CurrentThread.CurrentUICulture.ToString();
             }
             else
             {
@@ -300,8 +318,6 @@ namespace Cloud_Manager
             }
             Settings.Default.Save();
         }
-
-
 
         private void addCloud_Click(object sender, RoutedEventArgs e)
         {
@@ -313,17 +329,17 @@ namespace Cloud_Manager
 
         private void renameCloud_Click(object sender, RoutedEventArgs e)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         private void removeCloud_Click(object sender, RoutedEventArgs e)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         private void copy_Click(object sender, RoutedEventArgs e)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs cancelEventArgs)
@@ -336,6 +352,24 @@ namespace Cloud_Manager
             var searchWindow = new SearchWindow(_cloudManagerLogic.CloudList);
             IsEnabled = false;
             searchWindow.Show();
+        }
+
+        
+
+        private void uploadConfirmation_Click(object sender, RoutedEventArgs e)
+        {
+            PopupUploadConfirmation.IsOpen = false;
+            if (IsEncrypted != null)
+            {
+                _cloudManagerLogic.UploadFile(UploadFilePath.Text, (bool)IsEncrypted.IsChecked);
+                FolderItems = _cloudManagerLogic.RefreshInfo();
+                NotifyMenuItems();
+            }
+        }
+
+        private void uploadCancel_Click(object sender, RoutedEventArgs e)
+        {
+            PopupUploadConfirmation.IsOpen = false;
         }
     }
 }

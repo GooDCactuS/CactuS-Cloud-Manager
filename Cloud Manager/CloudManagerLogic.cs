@@ -7,7 +7,9 @@ using Cloud_Manager.Managers;
 using System.Configuration;
 using System.Data.Entity;
 using System.Data.SqlClient;
+using System.Security.Cryptography;
 using Cloud_Manager.Data;
+using Cloud_Manager.Properties;
 using Dropbox.Api.Files;
 
 namespace Cloud_Manager
@@ -316,17 +318,31 @@ namespace Cloud_Manager
         /// <summary>
         /// Downloads the first file of list that contains selected files.
         /// </summary>
-        public void DownloadFile(string fullPath, string id)
+        public void DownloadFile(string fullPath, string id, bool isEncrypted)
         {
-            _currentCloudInfo.Cloud.DownloadFile(fullPath, id);
+            _currentCloudInfo.Cloud.DownloadFile(fullPath, id, isEncrypted);
         }
 
         /// <summary>
         /// Uploads a file into the current directory.
         /// </summary>
-        public void UploadFile(string filePath)
+        public void UploadFile(string filePath, bool isEncrypted)
         {
-            _currentCloudInfo.Cloud.UploadFile(_currentCloudInfo.CurrentDir, filePath);
+            if (isEncrypted)
+            {
+                if (File.Exists(filePath))
+                {
+                    string content = File.ReadAllText(filePath);
+                    content = Encryptor.EncryptString(content);
+
+                    _currentCloudInfo.Cloud.UploadFile(_currentCloudInfo.CurrentDir, content, filePath);
+                }
+            }
+            else
+            {
+                _currentCloudInfo.Cloud.UploadFile(_currentCloudInfo.CurrentDir, filePath);
+            }
+            
         }
 
         /// <summary>
@@ -492,6 +508,8 @@ namespace Cloud_Manager
 
             }
         }
+
+        
 
         #endregion
 

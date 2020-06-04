@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Threading;
 
 using Microsoft.Win32;
@@ -80,7 +82,7 @@ namespace Cloud_Manager.Managers
         /// </summary>
         /// <param name="fullPath">The full path of the file that file have on the computer</param>
         /// <param name="id">ID of the file</param>
-        public override void DownloadFile(string fullPath, string id)
+        public override void DownloadFile(string fullPath, string id, bool isEncrypted)
         {
             var request = Service.Files.Get(id);
             var stream = new MemoryStream();
@@ -96,10 +98,15 @@ namespace Cloud_Manager.Managers
                             }
                         case DownloadStatus.Completed:
                             {
-                                using (FileStream file = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                                byte[] fileContent = stream.ToArray();
+                                if (isEncrypted)
                                 {
-                                    stream.WriteTo(file);
+                                    string encContent = Convert.ToBase64String(fileContent);
+                                    string content = Encryptor.DecryptString(encContent);
+                                    fileContent = Encoding.Default.GetBytes(content);
                                 }
+                                File.WriteAllBytes(fullPath, fileContent);
+
                                 break;
                             }
                         case DownloadStatus.Failed:
@@ -155,6 +162,40 @@ namespace Cloud_Manager.Managers
             }
 
 
+        }
+
+        public override void UploadFile(FileStructure curDir, string content, string filePath)
+        {
+            string mimeType = "application/unknown";
+            string ext = Path.GetExtension(filePath).ToLower(CultureInfo.InvariantCulture);
+            RegistryKey regKey = Registry.ClassesRoot.OpenSubKey(ext);
+            if (regKey?.GetValue("Content Type") != null)
+            {
+                mimeType = regKey.GetValue("Content Type").ToString();
+            }
+
+            string shortFileName = filePath;
+            shortFileName = shortFileName.Substring(shortFileName.LastIndexOf('\\', shortFileName.Length - 2) + 1);
+            shortFileName += ".enc";
+            if (curDir.Name == "Root")
+            {
+                curDir.Id = Root;
+            }
+            var file = new Google.Apis.Drive.v3.Data.File
+            {
+                Name = shortFileName,
+                Parents = new List<string> { curDir.Id }
+
+            };
+
+            FilesResource.CreateMediaUpload request;
+            using (var stream = new MemoryStream(Convert.FromBase64String(content)))
+            {
+                request = Service.Files.Create(
+                    file, stream, mimeType);
+                request.Fields = "id";
+                request.Upload();
+            }
         }
 
         /// <summary>

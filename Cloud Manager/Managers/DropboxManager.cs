@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 
@@ -181,7 +182,7 @@ namespace Cloud_Manager.Managers
             return result;
         }
 
-        static async Task Download(string name, string id, DropboxClient dbx)
+        static async Task Download(string name, string id, DropboxClient dbx, bool isEncrypted)
         {
             var items = await dbx.Files.ListFolderAsync(string.Empty, true);
             foreach (var item in items.Entries)
@@ -193,6 +194,11 @@ namespace Cloud_Manager.Managers
                         var s = response.GetContentAsByteArrayAsync();
                         s.Wait();
                         var d = s.Result;
+                        if (isEncrypted)
+                        {
+                            string content = Encryptor.DecryptString(Convert.ToBase64String(d));
+                            d = Encoding.Default.GetBytes(content);
+                        }
                         File.WriteAllBytes(name, d);
                     }
 
@@ -206,9 +212,9 @@ namespace Cloud_Manager.Managers
         /// <param name="fullPath">The place where the selected file will be saved</param>
         /// <param name="id">The id of the selected file</param>
         /// <returns></returns>
-        public override void DownloadFile(string fullPath, string id)
+        public override void DownloadFile(string fullPath, string id, bool isEncrypted)
         {
-            var task = Task.Run(() => Download(fullPath, id, _dbx));
+            var task = Task.Run(() => Download(fullPath, id, _dbx, isEncrypted));
             task.Wait();
         }
 
@@ -236,6 +242,26 @@ namespace Cloud_Manager.Managers
             var task = Task.Run(() => Upload(fileName, filePath, _dbx));
             task.Wait();
 
+        }
+
+        static async Task UploadEncrypted(string file, string content, DropboxClient dbx)
+        {
+            using (var mem = new MemoryStream(Convert.FromBase64String(content)))
+            {
+                await dbx.Files.UploadAsync(
+                    file,
+                    WriteMode.Overwrite.Instance,
+                    body: mem);
+            }
+        }
+
+        public override void UploadFile(FileStructure curDir, string content, string filePath)
+        {
+            string fileName = filePath.Substring(filePath.LastIndexOf('\\', filePath.Length - 2) + 1);
+            fileName = curDir.Path + '/' + fileName;
+            fileName += ".enc";
+            var task = Task.Run(() => UploadEncrypted(fileName, content, _dbx));
+            task.Wait();
         }
 
         /// <summary>
