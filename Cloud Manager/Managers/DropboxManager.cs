@@ -340,20 +340,18 @@ namespace Cloud_Manager.Managers
         /// <summary>
         /// There is no access to trash from .NET API
         /// </summary>
-        [Obsolete]
         public override void UnTrashFile(ICollection<FileStructure> selectedFiles)
         {
-            throw new NotSupportedException();
+            return;
         }
 
 
         /// <summary>
         /// There is no access to trash from .NET API
         /// </summary>
-        [Obsolete]
         public override void ClearTrash()
         {
-            throw new NotSupportedException();
+            return;
         }
 
         /// <summary>
