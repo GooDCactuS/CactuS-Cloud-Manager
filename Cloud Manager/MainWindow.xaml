@@ -26,7 +26,7 @@
 
     </Window.Resources>
     <StackPanel HorizontalAlignment="Left" Margin="0">
-        <Menu Height="25" VerticalAlignment="Top" Margin="0,0,-696,0" HorizontalAlignment="Left">
+        <Menu Height="35" VerticalAlignment="Top" Margin="0,0,-696,0" HorizontalAlignment="Left">
             <MenuItem Header="{x:Static res:Resources.CloudMenu}">
                 <MenuItem Header="{x:Static res:Resources.AddCloudMenuItem}" Click="addCloud_Click"/>
                 <MenuItem Header="{x:Static res:Resources.RenameCloudMenuItem}" Click="renameCloud_Click"/>
