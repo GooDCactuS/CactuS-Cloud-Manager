@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:converters="clr-namespace:Cloud_Manager.Converters"
-        xmlns:res="clr-namespace:Cloud_Manager.Properties"
-        mc:Ignorable="d"
+        xmlns:res="clr-namespace:Cloud_Manager.Properties" xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                 mc:Ignorable="d"
         Title="{Binding WindowTitle}" Height="485" Width="800"
         Closing="MainWindow_Closing">
     <Window.Resources>
@@ -25,7 +25,7 @@
         </Style>
 
     </Window.Resources>
-    <StackPanel HorizontalAlignment="Left" Margin="0">
+    <StackPanel HorizontalAlignment="Left" Margin="0" Width="790">
         <Menu Height="35" VerticalAlignment="Top" Margin="0,0,-696,0" HorizontalAlignment="Left">
             <MenuItem Header="{x:Static res:Resources.CloudMenu}">
                 <MenuItem Header="{x:Static res:Resources.AddCloudMenuItem}" Click="addCloud_Click"/>
@@ -67,11 +67,49 @@
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Height="30" Margin="0,0,-693.6,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Button Style="{StaticResource ButtonStyle}" Content="{x:Static res:Resources.HomeButton}" Click="home_Click"/>
-                <Button Style="{StaticResource ButtonStyle}" Content="{x:Static res:Resources.GoUpButton}" Click="goUp_Click"/>
-                <Button Style="{StaticResource ButtonStyle}" Content="{x:Static res:Resources.BackButton}" Click="back_Click"/>
-                <Button Style="{StaticResource ButtonStyle}" Content="{x:Static res:Resources.RefreshButton}" Click="refresh_Click"/>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2">
+                <Button Style="{StaticResource MahApps.Styles.Button.MetroSquare.Accent}" Content="{x:Static res:Resources.HomeButton}" Click="home_Click">
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconBootstrapIcons Width="22" Height="18" Kind="House"/>
+                                <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </Button.ContentTemplate>
+                </Button>
+
+                <Button Style="{StaticResource MahApps.Styles.Button.MetroSquare.Accent}" Content="{x:Static res:Resources.GoUpButton}" Click="goUp_Click">
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconIonicons Width="22" Height="18" Kind="ArrowUpMD"/>
+                                <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </Button.ContentTemplate>
+                </Button>
+                <Button Style="{StaticResource MahApps.Styles.Button.MetroSquare.Accent}" Content="{x:Static res:Resources.BackButton}" Click="back_Click">
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconIonicons Width="22" Height="18" Kind="ArrowBackMD" />
+                                <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </Button.ContentTemplate>
+                </Button>
+
+                <Button Style="{StaticResource MahApps.Styles.Button.MetroSquare.Accent}" Content="{x:Static res:Resources.RefreshButton}" Click="refresh_Click">
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconIonicons Width="22" Height="18" Kind="RefreshCircleMD" />
+                                <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </Button.ContentTemplate>
+                </Button>
             </StackPanel>
 
             <DataGrid x:Name="GridItems" Grid.Row="1" ItemsSource="{Binding FolderItems}" AutoGenerateColumns="false" 
@@ -81,7 +119,7 @@
                     <DataGridTextColumn Header="{x:Static res:Resources.NameHeader}" Width="400" Binding="{Binding Name}"/>
                     <DataGridTextColumn Header="{x:Static res:Resources.TypeHeader}" Width="100" Binding="{Binding FileExtension}"/>
                     <DataGridTextColumn Header="{x:Static res:Resources.SizeHeader}" Width="150" Binding="{Binding Size, Converter={StaticResource ItemSizeConverter}}"/>
-                    <DataGridTextColumn Header="{x:Static res:Resources.DateHeader}" Width="125" Binding="{Binding ModifiedByMeTime, StringFormat=MM/dd/yyyy hh:mm}"/>
+                    <DataGridTextColumn Header="{x:Static res:Resources.DateHeader}" Width="150" Binding="{Binding ModifiedByMeTime, StringFormat=MM/dd/yyyy hh:mm}"/>
                 </DataGrid.Columns>
                 <DataGrid.ContextMenu>
                     <ContextMenu>
